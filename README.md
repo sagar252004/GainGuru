@@ -10,12 +10,12 @@ GainGuru is a real-time stock trading platform that allows users to buy, sell, a
 
 ## Key Features
 
--📈 Real-time Stock Prices: Fetches stock prices using the Ventage API.
--💰 Buy/Sell Stocks: Users can buy and sell stocks in real-time.
--📊 Profit/Loss Tracker: Displays the current status of profits and losses from trades.
--💳 Wallet System: A wallet system that allows users to add or withdraw money.
--🕑 Scheduled Data Fetching: Stock data is fetched twice a day using a scheduled task to respect the API call limit.
--🔒 User Authentication: Secure login and registration system for users.
+- 📈 *Real-time Stock Prices*: Fetches stock prices using the Ventage API.
+- 💰 *Buy/Sell Stocks*: Users can buy and sell stocks in real-time.
+- 📊 *Profit/Loss Tracker*: Displays the current status of profits and losses from trades.
+- 💳 *Wallet System*: A wallet system that allows users to add or withdraw money.
+- 🕑 *Scheduled Data Fetching*: Stock data is fetched twice a day using a scheduled task to respect the API call limit.
+- 🔒 *User Authentication*: Secure login and registration system for users.
 
 ## Technologies Used
 - *Backend*:
