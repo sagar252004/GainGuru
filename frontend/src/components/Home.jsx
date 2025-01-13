@@ -91,7 +91,7 @@ function Home() {
 
       // Sending request to backend
       const res = await axios.post(
-        `http://localhost:5000/api/v1/stocks/add/${user._id}`, // Ensure `user` contains a valid ID
+        `https://gainguru-lsr2.onrender.com/api/v1/stocks/add/${user._id}`, // Ensure `user` contains a valid ID
         inputStock,
         {
           headers: { "Content-Type": "application/json" },
@@ -130,7 +130,7 @@ function Home() {
 
           // Sending request to backend
           const res = await axios.post(
-            'http://localhost:5000/api/v1/user/add',
+            'https://gainguru-lsr2.onrender.com/api/v1/user/add',
             {
               userId : user._id, amountToAdd : amount
             },
@@ -172,7 +172,7 @@ function Home() {
 
           // Sending request to backend
           const res = await axios.post(
-            'http://localhost:5000/api/v1/user/withdraw',
+            'https://gainguru-lsr2.onrender.com/api/v1/user/withdraw',
             {
               userId : user._id, amountToWithdraw : amount
             },
