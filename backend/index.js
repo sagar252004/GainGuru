@@ -22,7 +22,7 @@ app.use(cookieParser());
 
 
 const corsOptions = {
-    origin: 'https://gainguru-lsr2.onrender.com', // Allow only your frontend
+    origin: 'https://gain-guru-p57oncjf6-sagars-projects-df40fa74.vercel.app', // Allow only your frontend
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed HTTP methods
     credentials: true, // If you need to send cookies or authorization headers
 };
