@@ -42,7 +42,7 @@ export default function Holdings({ portfolio, onBuyMore }) {
       
       // Sending request to backend
       const res = await axios.post(
-        `http://localhost:5000/api/v1/stocks/sell/${user._id}`,
+        `https://gainguru-lsr2.onrender.com/api/v1/stocks/sell/${user._id}`,
         sellData,
         {
           headers: { "Content-Type": "application/json" },
