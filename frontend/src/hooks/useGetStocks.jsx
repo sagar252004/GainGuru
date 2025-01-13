@@ -12,7 +12,7 @@ const useGetStocks = () => {
   const fetchAllStocks = async () => {
           try {
                 setLoadingState(true);
-                const res = await axios.get(`http://localhost:5000/api/v1/stocks/user/${user._id}`, { withCredentials: true });
+                const res = await axios.get(`https://gainguru-lsr2.onrender.com/api/v1/stocks/user/${user._id}`, { withCredentials: true });
             
                 if (res?.data?.availableStocks && res?.data?.ownedStocks) {
                   dispatch(setAvailableStocks(res.data.availableStocks));
