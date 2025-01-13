@@ -1,70 +1,66 @@
-# VoteTune
 
-*VoteTune* is a collaborative music player app where a group of friends can select songs, vote for the next song to play, and enjoy a seamless music-sharing experience. The app allows users to create/join music parties, add songs to playlists, and vote on which song should play next, all in real time.
+
+##GainGuru
+
+GainGuru is a real-time stock trading platform that allows users to buy, sell, and track their stock portfolio. The app provides features such as real-time stock price fetching, a wallet system for adding or withdrawing money, and a profit/loss tracker. GainGuru fetches stock data from the Ventage API, which is limited to 25 API calls per day, so data is fetched twice a day using scheduled tasks.
 
 ## Project Overview
 
-*VoteTune* provides a fun, interactive music experience for friends and communities. It offers features such as user authentication, playlist management, and a voting system to decide the next song to play. The app aims to create a unique and shared music experience, bringing friends closer together through music.
+*GainGuru* is designed to offer a seamless and user-friendly platform for stock trading. It allows users to view live stock prices, make stock trades, and track their profits and losses. The app also includes a wallet system where users can deposit or withdraw money to manage their trades.
 
 ## Key Features
 
-- 🎤 *User  Authentication*: Secure login system with JWT-based authentication.
-- 🎶 *Create/Join a Party*: Users can create a party or join an existing one with friends.
-- ➕ *Add Songs*: Users can add songs from YouTube to the party playlist.
-- 🗳 *Vote System*: Members vote on which song should play next.
-- 🔄 *Real-time Song Playing*: The song with the most votes gets played.
-- 🚀 *Live Updates*: The app uses real-time communication to update votes and song transitions.
+📈 Real-time Stock Prices: Fetches stock prices using the Ventage API.
+💰 Buy/Sell Stocks: Users can buy and sell stocks in real-time.
+📊 Profit/Loss Tracker: Displays the current status of profits and losses from trades.
+💳 Wallet System: A wallet system that allows users to add or withdraw money.
+🕑 Scheduled Data Fetching: Stock data is fetched twice a day using a scheduled task to respect the API call limit.
+🔒 User Authentication: Secure login and registration system for users.
 
 ## Technologies Used
+- *Backend*:
+    - *Node.js*: The backend of the application, handling all server-side logic and task scheduling.
+    - *Express.js*: Web framework for Node.js to handle HTTP requests and API endpoints.
+    - *node-cron*: Used for scheduling repetitive tasks like fetching stock data at specified intervals.
+    - *node-fetch*: For making HTTP requests to fetch stock data from the Ventage API.
+    - *JavaScript*: The core programming language for implementing the business logic and functionality.
 
 - *Frontend*:  
-  - *Next.js*: React framework for building the frontend.
-  - *TypeScript*: Static typing for JavaScript, improving code quality and maintainability.
-  - *Tailwind CSS*: Utility-first CSS framework for styling.
-  - *React*: JavaScript library for building user interfaces.
-  - *Zod*: Type-safe validation library for user input.
+    - *React*: JavaScript library for building user interfaces.
+    - *Tailwind CSS*: A utility-first CSS framework for styling the user interface.
 
 - *Authentication*:  
-  - *NextAuth.js*: Authentication library for Next.js.
+  - *JWT (JSON Web Token)*: For securing the user authentication and authorization system.
 
-- *Real-time Communication*:  
-  - *Socket.io*: To enable real-time communication for song votes and playback (long polling for now).
-
-- *Database*:  
-  - *Prisma ORM*: Database toolkit for interacting with MySQL.
 
 ### Getting Started
 
 
 1. clone the repository:
    bash
-    git clone https://github.com/RevanasiddaNK/VoteTune.git
+    git clone https://github.com/sagar252004/GainGuru
    
    
 2. Navigate to the project directory:
-   bash
-    cd VoteTune
+   bash(2)
+    cd backend
+    cd frontend
    
-   
+
 3. Set up environment variables :
    bash
-    GOOGLE_CLIENT_ID = xxxxx
-    GOOGLE_CLIENT_SECRET = xxxxx
-    NEXTAUTH_SECRET = "xxxxx"
-    DATABASE_URL="mysql://root:xxxxx@localhost:3306/votetune"
+    MONGO_URI=paste your mongo uri
+    PORT= enter your port number
+    SECRET_KEY= enter your secret key
+    ALPHA_VANTAGE_API_KEY=paste your aplha vantage api key 
    
   
 4.  Install dependencies:
    bash
        npm install
    
-
-5. Run database migrations:
-   bash
-     npx prisma migrate dev
-     npx prisma generate
-
    
-6. Start the development server:
-   ```bash
-     npm run dev
+5. Start the development server:
+   bash
+     backend: npm run dev
+     frontend: npm run 
