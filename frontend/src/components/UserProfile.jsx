@@ -24,7 +24,7 @@ export default function UserProfile({ onAddFunds, onWithdraw, userEmail }) {
     e.preventDefault();
     try {
         dispatch(setLoading(true));
-        const res = await axios.post('http://localhost:5000/api/v1/user/logout',{
+        const res = await axios.post('https://gainguru-lsr2.onrender.com/api/v1/user/logout',{
             headers: {
                 "Content-Type": "application/json"
             },
