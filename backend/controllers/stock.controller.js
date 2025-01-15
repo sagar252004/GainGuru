@@ -208,76 +208,60 @@ export const sellStocks = async (req, res) => {
 
 
 export const fetchStockData = async (req, res) => {
-  // Updated stock details to only include AAPL and MSFT
-  const stockDetails = [
-    { ticker: 'AAPL', name: 'Apple Inc.' },
-    { ticker: 'MSFT', name: 'Microsoft Corporation' },
-    { ticker: 'GOOGL', name: 'Alphabet Inc. (Google)' },
-    { ticker: 'AMZN', name: 'Amazon.com, Inc.' },
-    { ticker: 'TSLA', name: 'Tesla, Inc.' }
-  ];
-
   try {
-    const responses = await Promise.all(stockDetails.map(async (stock) => {
-      try {
-        const response = await fetch(
-          `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${stock.ticker}&apikey=${process.env.API_KEY}`
-        );
+    await Promise.all(
+      stockDetails.map(async (stock) => {
+        try {
+          const response = await fetch(
+            `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${stock.ticker}&apikey=${process.env.API_KEY}`
+          );
 
-        if (!response.ok) {
-          throw new Error(`Error fetching data for ${stock.ticker}: ${response.statusText}`);
+          if (!response.ok) {
+            console.error(`Error fetching data for ${stock.ticker}: ${response.statusText}`);
+            return; // Skip this stock if there's an error with the API
+          }
+
+          const data = await response.json();
+          const timeSeries = data['Time Series (Daily)'];
+
+          if (!timeSeries) {
+            console.error(`No data available for ${stock.ticker}`);
+            return; // Skip this stock if no data is available from the API
+          }
+
+          const dates = Object.keys(timeSeries);
+          const previousDay = dates[0]; // Latest trading day
+          const details = timeSeries[previousDay];
+
+          // Proceed with upserting the stock data only if fetching was successful
+          await DailyStock.findOneAndUpdate(
+            { ticker: stock.ticker, date: previousDay },
+            {
+              ticker: stock.ticker,
+              name: stock.name,
+              date: previousDay,
+              open: details['1. open'],
+              high: details['2. high'],
+              low: details['3. low'],
+              close: details['4. close'],
+              volume: details['5. volume'],
+              lastUpdated: new Date(),
+            },
+            { upsert: true, new: true }
+          );
+        } catch (err) {
+          console.error(`Error processing stock ${stock.ticker}:`, err);
+          // Skip this stock if there's an error during processing
         }
+      })
+    );
 
-        const data = await response.json();
-        const timeSeries = data['Time Series (Daily)'];
-
-        if (!timeSeries) {
-          console.error(`No data for ${stock.ticker}`);
-          return { ticker: stock.ticker, name: stock.name, error: "No data available" };
-        }
-
-        const dates = Object.keys(timeSeries);
-        const previousDay = dates[0]; // Latest trading day
-        const details = timeSeries[previousDay];
-
-        // Upsert (insert or update) stock data in the database
-        await DailyStock.findOneAndUpdate(
-          { ticker: stock.ticker, date: previousDay },
-          {
-            ticker: stock.ticker,
-            name: stock.name,
-            date: previousDay,
-            open: details['1. open'],
-            high: details['2. high'],
-            low: details['3. low'],
-            close: details['4. close'],
-            volume: details['5. volume'],
-            lastUpdated: new Date()
-          },
-          { upsert: true, new: true }
-        );
-
-        return {
-          ticker: stock.ticker,
-          name: stock.name,
-          date: previousDay,
-          open: details['1. open'],
-          high: details['2. high'],
-          low: details['3. low'],
-          close: details['4. close'],
-          volume: details['5. volume']
-        };
-
-      } catch (err) {
-        console.error(`Error processing ${stock.ticker}:`, err);
-        return { ticker: stock.ticker, name: stock.name, error: err.message };
-      }
-    }));
-
-    res.json({ success: true, data: responses });
-  } catch (error) {
-    console.error("Error fetching stock data:", error);
-    res.status(500).json({ success: false, error: "Failed to fetch stock data" });
+    // Respond with a success message after processing all stocks
+    res.status(200).json({ success: true, message: "Stock data processed successfully" });
+  } 
+  catch (error) {
+    console.error("Error updating stock data:", error);
+    res.status(500).json({ success: false, error: "An unexpected error occurred while processing stock data" });
   }
 };
 
@@ -333,58 +317,7 @@ export const getStocks = async (req, res) => {
     const { userId } = req.params;
      // const stocks = await fetchStockData();
     // Mock stock data
-    const stocks = [
-      {
-        ticker: "AAPL",
-        name: "Apple Inc.",
-        date: "2025-01-10",
-        open: "240.0100",
-        high: "240.1600",
-        low: "233.0000",
-        close: "236.8500",
-        volume: "61710856",
-      },
-      {
-        ticker: "MSFT",
-        name: "Microsoft Corporation",
-        date: "2025-01-10",
-        open: "424.6300",
-        high: "424.7100",
-        low: "415.0200",
-        close: "418.9500",
-        volume: "20201132",
-      },
-      {
-        ticker: "GOOGL",
-        name: "Alphabet Inc. (Google)",
-        date: "2025-01-10",
-        open: "194.2950",
-        high: "196.5200",
-        low: "190.3100",
-        close: "192.0400",
-        volume: "26665206",
-      },
-      {
-        ticker: "AMZN",
-        name: "Amazon.com, Inc.",
-        date: "2025-01-10",
-        open: "221.4600",
-        high: "221.7100",
-        low: "216.5000",
-        close: "218.9400",
-        volume: "36811525",
-      },
-      {
-        ticker: "TSLA",
-        name: "Tesla, Inc.",
-        date: "2025-01-10",
-        open: "391.4000",
-        high: "399.2800",
-        low: "377.2900",
-        close: "394.7400",
-        volume: "62287333",
-      },
-    ];
+    const stocks = await DailyStock.find({});
 
 
 
@@ -425,25 +358,3 @@ export const getStocks = async (req, res) => {
     return res.status(500).json({ success: false, message: "Failed to fetch and update stocks" });
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
