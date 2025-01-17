@@ -23,7 +23,7 @@ app.use(cookieParser());
 
 
 const corsOptions = {
-    origin:   'http://localhost:5173',
+    origin:   'https://gain-guru-seven.vercel.app/',
      // Allow only your frontend
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed HTTP methods
     credentials: true, // If you need to send cookies or authorization headers
