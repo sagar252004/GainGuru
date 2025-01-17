@@ -11,6 +11,7 @@ import {  setWalletBalance } from '@/redux/authSlice'
 import { setLoading,setOwnedStocks} from '../redux/stocksSlice'
 import { TrendingUp } from 'lucide-react';
 import axios from 'axios';
+import { STOCK_API_END_POINT, USER_API_END_POINT } from '../utils/constant';
 
 function Home() {
   
@@ -91,13 +92,15 @@ function Home() {
 
       // Sending request to backend
       const res = await axios.post(
-        `https://gainguru-lsr2.onrender.com/api/v1/stocks/add/${user._id}`, // Ensure `user` contains a valid ID
+        `${STOCK_API_END_POINT}/add/${user._id}`,
+        // `https://gainguru-lsr2.onrender.com/api/v1/stocks/add/${user._id}`, // Ensure `user` contains a valid ID
         inputStock,
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
         }
       );
+
 
       if (res?.data?.success) {
         toast.success(res.data.message);
@@ -118,19 +121,17 @@ function Home() {
   };
 
   const handleAddFunds = async (amount) => {
-
     if (amount <= 0) {
       alert('Please enter a valid amount');
       return;
     }
-
-
     try {
           dispatch(setLoading(true));
 
           // Sending request to backend
           const res = await axios.post(
-            'https://gainguru-lsr2.onrender.com/api/v1/user/add',
+            `${USER_API_END_POINT}/add`,
+            // 'https://gainguru-lsr2.onrender.com/api/v1/user/add',
             {
               userId : user._id, amountToAdd : amount
             },
@@ -161,18 +162,16 @@ function Home() {
   };
 
   const handleWithdraw  = async (amount) => {
-
     if (amount <= 0) {
       alert('Please enter a valid amount');
       return;
     }
-
     try {
           dispatch(setLoading(true));
-
           // Sending request to backend
           const res = await axios.post(
-            'https://gainguru-lsr2.onrender.com/api/v1/user/withdraw',
+            `${USER_API_END_POINT}/withdraw`,
+            // 'https://gainguru-lsr2.onrender.com/api/v1/user/withdraw',
             {
               userId : user._id, amountToWithdraw : amount
             },

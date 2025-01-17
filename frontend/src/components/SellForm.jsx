@@ -28,18 +28,7 @@ export default function SellForm({ stock, onSubmit, onClose }) {
               className="w-full p-2 border rounded focus:ring-2 focus:ring-red-500"
             />
           </div>
-          {/* <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Sell Price ($)
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={sellPrice}
-              onChange={(e) => setSellPrice(Number(e.target.value))}
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-red-500"
-            />
-          </div> */}
+  
           <div className="flex justify-end gap-2">
             <button
               type="button"

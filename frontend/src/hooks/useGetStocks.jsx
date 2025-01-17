@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios';
 import { setAvailableStocks, setOwnedStocks, setError, setLoading } from '../redux/stocksSlice';
+import { STOCK_API_END_POINT } from '../utils/constant';
 
 const useGetStocks = () => {
   const { user } = useSelector((store) => store.auth);
@@ -12,8 +13,11 @@ const useGetStocks = () => {
   const fetchAllStocks = async () => {
           try {
                 setLoadingState(true);
-                const res = await axios.get(`https://gainguru-lsr2.onrender.com/api/v1/stocks/user/${user._id}`, { withCredentials: true });
-            
+                console.log(user._id);
+                const res = await axios.get(
+                  `${STOCK_API_END_POINT}/user/${user._id}`,
+                  // `https://gainguru-lsr2.onrender.com/api/v1/stocks/user/${user._id}`,
+                   { withCredentials: true });
                 if (res?.data?.availableStocks && res?.data?.ownedStocks) {
                   dispatch(setAvailableStocks(res.data.availableStocks));
                   dispatch(setOwnedStocks(res.data.ownedStocks));

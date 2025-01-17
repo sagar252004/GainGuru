@@ -4,12 +4,33 @@ import  {Stock}  from '../models/stock.model.js';
 import  {UserStock}  from '../models/userStock.model.js';
 import  {User}  from '../models/user.model.js';
 import {DailyStock} from '../models/dailyStock.model.js';
+import moment from "moment-timezone";
 
-const API_KEY = process.env.ALPHA_VANTAGE_API_KEY;
+const isMarketOpen = () => {
+  const now = moment.tz("America/New_York"); // Current time in Eastern Time
+  const dayOfWeek = now.day(); // 0 (Sunday) to 6 (Saturday)
+  const hour = now.hour();
+  const minute = now.minute();
+
+  // Regular trading hours: Monday to Friday, 9:30 AM to 4:00 PM ET
+  const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5; // Monday to Friday
+  const isDuringHours =
+    (hour > 9 || (hour === 9 && minute >= 30)) && hour < 16; // 9:30 AM to 4:00 PM
+
+  return isWeekday && isDuringHours;
+};
+
 
 
 export const addStock = async (req, res) => {
+
   try {
+
+    if (!isMarketOpen()) {
+      return res.status(400).json({ success: false, error: 'Stock market is closed, try again during market hours.' });
+    }
+
+
     const { userId } = req.params;
     const { name, ticker, shares, avg_price, mkt_price } = req.body;
 
@@ -117,6 +138,11 @@ export const addStock = async (req, res) => {
 
 export const sellStocks = async (req, res) => {
   try {
+
+    if (!isMarketOpen()) {
+      return res.status(400).json({ success: false, error: 'Stock market is closed, try again during market hours.' });
+    }
+
     const { userId } = req.params;
     const { quantity, stockTicker, currentPrice } = req.body;
 
@@ -205,89 +231,37 @@ export const sellStocks = async (req, res) => {
   }
 };
 
-
-
-export const fetchStockData = async (req, res) => {
-  try {
-    await Promise.all(
-      stockDetails.map(async (stock) => {
-        try {
-          const response = await fetch(
-            `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${stock.ticker}&apikey=${process.env.API_KEY}`
-          );
-
-          if (!response.ok) {
-            console.error(`Error fetching data for ${stock.ticker}: ${response.statusText}`);
-            return; // Skip this stock if there's an error with the API
-          }
-
-          const data = await response.json();
-          const timeSeries = data['Time Series (Daily)'];
-
-          if (!timeSeries) {
-            console.error(`No data available for ${stock.ticker}`);
-            return; // Skip this stock if no data is available from the API
-          }
-
-          const dates = Object.keys(timeSeries);
-          const previousDay = dates[0]; // Latest trading day
-          const details = timeSeries[previousDay];
-
-          // Proceed with upserting the stock data only if fetching was successful
-          await DailyStock.findOneAndUpdate(
-            { ticker: stock.ticker, date: previousDay },
-            {
-              ticker: stock.ticker,
-              name: stock.name,
-              date: previousDay,
-              open: details['1. open'],
-              high: details['2. high'],
-              low: details['3. low'],
-              close: details['4. close'],
-              volume: details['5. volume'],
-              lastUpdated: new Date(),
-            },
-            { upsert: true, new: true }
-          );
-        } catch (err) {
-          console.error(`Error processing stock ${stock.ticker}:`, err);
-          // Skip this stock if there's an error during processing
-        }
-      })
-    );
-
-    // Respond with a success message after processing all stocks
-    res.status(200).json({ success: true, message: "Stock data processed successfully" });
-  } 
-  catch (error) {
-    console.error("Error updating stock data:", error);
-    res.status(500).json({ success: false, error: "An unexpected error occurred while processing stock data" });
-  }
-};
-
-
 export const getStocks = async (req, res) => {
 
-  const getRandomPrice = (low, high) => (Math.random() * (high - low) + low).toFixed(2);
+  const getRandomPrice = (low, high) => {
+    if (typeof low !== 'number' || typeof high !== 'number') {
+      throw new Error('Low and high values must be numbers');
+    }
+    const randomPrice = Math.random() * (high - low) + low;
+    return parseFloat(randomPrice.toFixed(2)); // Ensures the result is a number
+  };
 
   const transformStocks = (stocks) => {
-    return stocks.map((stock, index) => ({
-      id: (index + 1).toString(),
-      name: stock.name,
-      ticker: stock.ticker.toUpperCase(),
-      avg_price: getRandomPrice(parseFloat(stock.low), parseFloat(stock.high)),
-    }));
+    return stocks.map((stock, index) => {
+      const avgPrice = !isMarketOpen()
+      ? ((parseFloat(stock.low) + parseFloat(stock.high)) / 2).toFixed(2) // Use static average if market is closed
+      : getRandomPrice(parseFloat(stock.low), parseFloat(stock.high)).toFixed(2); // Generate random price if market is open
+
+      return {
+        id: (index + 1).toString(),
+        name: stock.name,
+        ticker: stock.ticker.toUpperCase(),
+        avg_price: avgPrice,
+      };
+    });
   };
+  
 
-  const updateOwnedStocks = (ownedStocks, availableStocks) => {
-
-    
+const updateOwnedStocks = (ownedStocks, availableStocks) => {
+ 
     const stockMap = new Map(
       availableStocks.map((stock) => [stock.ticker, stock])
     );
-    
-  
-    
 
     return ownedStocks.map((ownedStock) => {
       const ownedTicker = ownedStock?.stock?.ticker?.toUpperCase();
@@ -314,12 +288,10 @@ export const getStocks = async (req, res) => {
   };
 
   try {
+
     const { userId } = req.params;
-     // const stocks = await fetchStockData();
-    // Mock stock data
+   
     const stocks = await DailyStock.find({});
-
-
 
     // Transform the stock data to include average prices
     const availableStocks = transformStocks(stocks);
@@ -334,7 +306,7 @@ export const getStocks = async (req, res) => {
     });
 
     if (!user) {
-      console.log(`User with ID ${userId} not found.`);
+      //console.log(`User with ID ${userId} not found.`);
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
@@ -343,8 +315,6 @@ export const getStocks = async (req, res) => {
 
     // Save the updated user data
     await user.save();
-
-
     const ownedStocks = user.stocks.sort((a, b) => b.returnsPercentage - a.returnsPercentage);
 
 
@@ -358,3 +328,24 @@ export const getStocks = async (req, res) => {
     return res.status(500).json({ success: false, message: "Failed to fetch and update stocks" });
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

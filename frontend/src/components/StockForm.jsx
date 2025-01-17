@@ -26,18 +26,7 @@ export default function StockForm({ stock, onSubmit, onClose }) {
               className="w-full p-2 z-2 border rounded focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          {/* <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Buy Price ($)
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={buyPrice}
-              onChange={(e) => setBuyPrice(Number(e.target.value))}
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-            />
-          </div> */}
+        
           <div className="flex justify-end gap-2">
             <button
               type="button"

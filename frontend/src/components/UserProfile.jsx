@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { Wallet, ChevronDown, LogOut } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux'
-
 import { setLoading, setUser } from '@/redux/authSlice'
 import { setOwnedStocks, setAvailableStocks} from '../redux/stocksSlice'
 import toast from 'react-hot-toast'
 import axios from 'axios'
 import { Link, useNavigate } from 'react-router-dom'
-
+import { USER_API_END_POINT } from '../utils/constant';
 export default function UserProfile({ onAddFunds, onWithdraw, userEmail }) {
   
   const [isOpen, setIsOpen] = useState(false);
@@ -24,30 +23,40 @@ export default function UserProfile({ onAddFunds, onWithdraw, userEmail }) {
     e.preventDefault();
     try {
         dispatch(setLoading(true));
-        const res = await axios.post('https://gainguru-lsr2.onrender.com/api/v1/user/logout',{
-            headers: {
-                "Content-Type": "application/json"
-            },
-            withCredentials: true,
 
-        });
+        const res = await axios.post(
+          `${USER_API_END_POINT}/logout`,
+          {}, // Empty body for logout
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            withCredentials: true, // Send cookies
+          }
+        );
 
         if (res.data.success) {
             dispatch(setUser(null));
             dispatch(setAvailableStocks([]));
             dispatch(setOwnedStocks([]));
-            navigate("/")
-            //navigate("/home", { state: { user: res.data.user } });
+            navigate("/");
             toast.success(res.data.message);
         }
-
     } catch (error) {
-        console.log(error);
-        toast.error(error.response.data.message);
+        console.error("Logout Error:", error);
+
+        if (error.response) {
+            toast.error(error.response.data.message);
+        } else if (error.request) {
+            toast.error("Could not connect to the server. Please check your network.");
+        } else {
+            toast.error("An unexpected error occurred.");
+        }
     } finally {
         dispatch(setLoading(false));
     }
-  };
+};
+
 
   const handleTransaction = (e) => {
       e.preventDefault();
@@ -108,7 +117,6 @@ export default function UserProfile({ onAddFunds, onWithdraw, userEmail }) {
             </button>
           </div>
         )}
-
         {showFundsModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded-lg w-full max-w-md">
@@ -150,5 +158,4 @@ export default function UserProfile({ onAddFunds, onWithdraw, userEmail }) {
         )}
       </div>
   );
-
 }
